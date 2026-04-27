@@ -3,7 +3,7 @@ import os
 import sys
 from pathlib import Path
 
-import anthropic
+from .llm_adapter import LLMClient
 from dotenv import load_dotenv
 
 from .compactor import Compactor
@@ -20,13 +20,13 @@ from .tools import (
 
 class AgentLoop:
     def __init__(self, root: Path | None = None,
-                 model: str = "claude-haiku-4-5-20251001"):
+                 model: str = "qwen-turbo"):
         load_dotenv()
         self.root = root or Path(__file__).parent.parent
 
-        client = anthropic.Anthropic(
-            api_key=os.environ["ANTHROPIC_API_KEY"],
-            base_url=os.environ.get("ANTHROPIC_BASE_URL"),
+        client = LLMClient(
+            api_key=os.environ.get("LLM_API_KEY"),
+            base_url=os.environ.get("LLM_BASE_URL"),
         )
 
         self.memory = MemoryStore(

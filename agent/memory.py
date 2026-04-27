@@ -21,9 +21,12 @@ class MemoryStore:
     def _ensure(self) -> None:
         self.memory_dir.mkdir(parents=True, exist_ok=True)
         if not self.memory_file.exists():
-            self.memory_file.write_text("# 长期记忆\n\n此文件常驻上下文，记录核心目标、当前任务与关键事实。\n")
+            self.memory_file.write_text(
+                "# 长期记忆\n\n此文件常驻上下文，记录核心目标、当前任务与关键事实。\n",
+                encoding="utf-8",
+            )
         if not self.history_file.exists():
-            self.history_file.write_text("")
+            self.history_file.write_text("", encoding="utf-8")
 
     # ── 原始层 ──────────────────────────────────────────────
     def append_history(self, role: str, content: Any) -> None:
@@ -42,17 +45,17 @@ class MemoryStore:
 
     def read_today_episode(self) -> str:
         p = self.today_episode_path()
-        return p.read_text(encoding="utf-8") if p.exists() else ""
+        return p.read_text(encoding="utf-8", errors="replace") if p.exists() else ""
 
     def append_episode(self, content: str) -> None:
         p = self.today_episode_path()
-        existing = p.read_text(encoding="utf-8") if p.exists() else f"# {p.stem} 情景记忆\n"
+        existing = p.read_text(encoding="utf-8", errors="replace") if p.exists() else f"# {p.stem} 情景记忆\n"
         new_text = existing.rstrip() + "\n\n" + content.strip() + "\n"
         p.write_text(new_text, encoding="utf-8")
 
     # ── 长期层 ──────────────────────────────────────────────
     def read_memory(self) -> str:
-        return self.memory_file.read_text(encoding="utf-8") if self.memory_file.exists() else ""
+        return self.memory_file.read_text(encoding="utf-8", errors="replace") if self.memory_file.exists() else ""
 
     def write_memory(self, content: str) -> None:
         self.memory_file.write_text(content.strip() + "\n", encoding="utf-8")
@@ -68,7 +71,7 @@ class MemoryStore:
         if not self.history_file.exists():
             return []
         rows = []
-        with self.history_file.open("r", encoding="utf-8") as f:
+        with self.history_file.open("r", encoding="utf-8", errors="replace") as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -89,7 +92,7 @@ class MemoryStore:
 
     # ── 用户偏好 ────────────────────────────────────────────
     def read_user(self) -> str:
-        return self.user_file.read_text(encoding="utf-8") if self.user_file.exists() else ""
+        return self.user_file.read_text(encoding="utf-8", errors="replace") if self.user_file.exists() else ""
 
     def write_user(self, content: str) -> None:
         self.user_file.write_text(content.strip() + "\n", encoding="utf-8")
